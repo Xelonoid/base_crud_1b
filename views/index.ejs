@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script src="./javascripts/jquery-3.2.0.min.js"></script>
+
+  <title>parkir</title>
+</head>
+
+<body>
+
+
+  <div class="container-fluid">
+
+
+        <div class="container" style="margin-top: 50px">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="jenis_kendaraan">jenis kendaraan</label>
+                        <input type="text" class="form-control" id="jenis_kendaraan" placeholder="jenis_kendaraan">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="plat_nomor">plat nomor</label>
+                        <input type="text" class="form-control" id="plat_nomor" placeholder="plat_nomor">
+                    </div>
+                </div>
+
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="jam_masuk">tanggal_masuk</label>
+                        <input type="number" class="form-control" id="jam_masuk" placeholder="tanggal_masuk">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row" allign="right">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm">
+                    <button type="button" id="register" class="btn btn-danger" state="register">REGISTER</button>
+                </div>
+            </div>
+
+
+            <div class="row" allign="right" style="margin-top: +30px">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="search" placeholder="Search">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm">
+                    <table class="table table-striped"
+                           id="table_user">
+                        <thead>
+                            <tr>
+                                <th>parkir</th>
+                                <th>keterangan</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+
+  <script>
+    get_table_data();
+    let selected_user = '';
+    $("#register").click(function () {
+      var jenis_kendaraan = $("#jenis_kendaraan").val();
+      var plat_nomor = $("#plat_nomor").val();
+      var jam_masuk = $("#jam_masuk").val();
+      let dt = {
+        jenis_kendaraan,
+        plat_nomor,
+        jam_masuk,
+      }
+      if($(this).attr("state") == "register"){//create here
+        $.post("/api/users", dt, function (res) {
+          get_table_data();
+        })
+      }else if ($(this).attr("state") == "view") {//read here
+        location.reload(); //refresh
+      }else if ($(this).attr("state") == "edit") {//update here
+        dt.user_key = selected_user;
+        $.post("/api/user/update", dt, function(res){
+          get_table_data();
+        })
+      }
+    })
+    function get_table_data() {
+      $("#table_user tbody").empty();
+      $.get("/api/users").done(function(res){
+        res.forEach(v => {
+          let el = `
+          <tr>
+            <td>
+              <b>${v.jenis_kendaraan.toUpperCase()}</b>
+              <br/>
+            </td>
+            <td>
+              ${v.plat_nomor} (<b>${v.jam_masuk}</b>)
+            </td>
+            <td>
+              <a href="#" class="edit" dt="${v.user_key}">
+                <span class="badge badge-warning">Edit</span>
+              </a> |
+              <a href="#" class="view" dt="${v.user_key}">
+                <span class="badge badge-primary">View</span>
+              </a> |
+              <a href="#" class="delete" dt="${v.user_key}">
+                <span class="badge badge-danger">Delete</span>
+              </a>
+            </td>
+          </tr>
+          `;
+          $("#table_user tbody").append(el);
+        });
+      });
+    }
+    $("#table_user").on("click", ".delete", function () {
+      ukey = $(this).attr("dt");
+      $.post("/api/user/delete", {user_key:ukey}, function(res){
+        get_table_data();
+      })
+    });
+    $("#table_user").on("click", ".edit", function () {
+        ukey = $(this).attr("dt");
+        $.get("/api/user/" + ukey).done(function (v) {
+        $("#jenis_kendaraan").val(v.jenis_kendaraan);
+        $("#plat_nomor").val(v.plat_nomor);
+        $("#jam_masuk").val(v.jam_masuk);
+          selected_user = ukey; //user key for updating
+          //change button status to edit mode
+          $("#register").text("UPDATE DATA").attr("state", "edit").addClass("btn-warning")
+                        .removeClass("btn-danger").removeClass("btn-success");
+        })
+      });
+    $("#table_user").on("click", ".view", function () {
+      ukey = $(this).attr("dt");
+      $.get("/api/user/"+ukey).done(function(v){
+        $("#jenis_kendaraan").val(v.jenis_kendaraan);
+        $("#plat_nomor").val(v.plat_nomor);
+        $("#jam_masuk").val(v.jam_masuk);
+        //change button status to view mode
+        $("#register").text("OK").attr("state", "view").addClass("btn-success")
+                      .removeClass("btn-danger").removeClass("btn-warning");
+      })
+    });
+    $("#search").on("keyup", function () {
+      txt = $(this).val().toLowerCase();
+      $("#table_user tr").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(txt) > -1);
+      })
+    })
+  </script>
+
+  </script>
+
+</body>
+
+</html>

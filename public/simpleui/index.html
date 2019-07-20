@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="eng">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="./js/jquery-3.2.0.min.js"></script>
+
+    <title>parkir</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+
+
+        <div class="container" style="margin-top: 50px">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="jenis_kendaraan">jenis kendaraan</label>
+                        <input type="text" class="form-control" id="jenis_kendaraan" placeholder="jenis_kendaraan">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="plat_nomor">plat nomor</label>
+                        <input type="text" class="form-control" id="plat_nomor" placeholder="plat_nomor">
+                    </div>
+                </div>
+
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label for="jam_masuk">jam masuk</label>
+                        <input type="number" class="form-control" id="jam_masuk" placeholder="jam_masuk">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" allign="right">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm">
+                    <button type="button" id="register" class="btn btn-danger">REGISTER</button>
+                </div>
+            </div>
+
+
+            <div class="row" allign="right" style="margin-top: +30px">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="search" placeholder="Search">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm">
+                    <table class="table table-striped"
+                           id="table_user">
+                        <thead>
+                            <tr>
+                                <th>parkir</th>
+                                <th>keterangan</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+    <script>
+        let user_data = [];
+        $("#register").click(function () {
+            var jenis_kendaraan = $("#jenis_kendaraan").val();
+            var plat_nomor = $("#plat_nomor").val();
+            var jam_masuk = $("#jam_masuk").val();
+            let dt = {
+                jenis_kendaraan,
+                plat_nomor,
+                jam_masuk,
+            }
+            user_data.push(dt);
+            get_table_data(user_data);
+        })
+        let id = 0;
+        function get_table_data(udata){
+            $("#table_user tbody").empty();
+            udata.forEach(v => {
+                let el = `
+                    <tr>
+                        <td>
+                            <b>${v.jenis_kendaraan.toUpperCase()} </b>
+                            <br/>${v.plat_nomor}
+                        </td>
+                        <td>
+                            ${v.jam_masuk}
+                        </td>
+                        <td>
+                            <a href="#" class="edit" dt="${id}">
+                                <span class="badge badge-warning">Edit</span>
+                            </a> | 
+                            <a href="#" class="view" dt="${id}">
+                                <span class="badge badge-primary">View</span>
+                            </a> |
+                            <a href="#" class="delete" dt="${id}">
+                                <span class="badge badge-danger">Delete</span>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                $("#table_user tbody").append(el);
+                id++;
+            });
+        }
+    
+        $("#table_user").on("click", ".edit", function(){
+            id = $(this).attr("dt");
+            alert(id + " Clicked!!");
+        })
+        $("#search").on("keyup", function(){
+            txt = $(this).val().toLowerCase();
+            $("#table_user tr").filter(function(){
+                $(this).toggle($(this).text().toLowerCase().indexOf(txt) > -1);
+            })
+        })
+    </script>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    </script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script> -->
+</body>
+
+</html>
